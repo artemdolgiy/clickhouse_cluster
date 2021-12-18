@@ -1,0 +1,81 @@
+---
+- name: Preconfig
+  hosts: bd
+  tasks:
+
+    - name: Установка и настройка ClickHouse
+      vars:
+        cluster_name: testcluster
+
+      block:
+        - name: Установка дополнительных пакетов
+          apt:
+            name:
+              - apt-transport-https
+              - ca-certificates
+              - dirmngr
+            update_cache: true
+
+        - name: Добавление ключа ClickHouse
+          apt_key:
+            id: "E0C56BD4"
+            url: "http://repo.yandex.ru/clickhouse/CLICKHOUSE-KEY.GPG"
+
+        - name: Добавление репозитория ClickHouse
+          apt_repository:
+            repo: deb https://repo.clickhouse.com/deb/stable/ main/
+            state: present
+
+        - name: Установка ClickHouse
+          apt:
+            name:
+              - clickhouse-server
+              - clickhouse-client
+            update_cache: true
+
+        - name: Копирование конфига keeper.xml
+          template:
+            src: keeper.xml.j2
+            dest: /etc/clickhouse-server/config.d/keeper.xml
+            owner: clickhouse
+            group: clickhouse
+            mode: 0400
+
+        - name: Копирование конфига cluster.xml
+          template:
+            src: cluster.xml.j2
+            dest: /etc/clickhouse-server/config.d/cluster.xml
+            owner: clickhouse
+            group: clickhouse
+            mode: 0400
+
+        - name: Копирование конфига macros.xml
+          template:
+            src: macros.xml.j2
+            dest: /etc/clickhouse-server/config.d/macros.xml
+            owner: clickhouse
+            group: clickhouse
+            mode: 0400
+
+        - name: Копирование конфига allow_replicated.xml
+          copy:
+            src: allow_replicated.xml
+            dest: /etc/clickhouse-server/users.d/allow_replicated.xml
+            owner: clickhouse
+            group: clickhouse
+            mode: 0400
+
+        - name: Копирование конфига listenhost.xml
+          copy:
+            src: listenhost.xml
+            dest: /etc/clickhouse-server/config.d/listenhost.xml
+            owner: clickhouse
+            group: clickhouse
+            mode: 0400
+
+        - name: Проверка корректности установки ClickHouse
+          service:
+            name: clickhouse-server
+            state: restarted
+            enabled: true
+      become: true

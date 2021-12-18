@@ -1,0 +1,20 @@
+<clickhouse>
+    <remote_servers>
+        <testcluster>
+            <shard>
+                <replica>
+                    <host>{{ hostvars['server1'].ansible_host }}</host>
+                    <port>9000</port>
+                </replica>
+                <replica>
+                    <host>{{ hostvars['server2'].ansible_host }}</host>
+                    <port>9000</port>
+                </replica>
+                <replica>
+                    <host>{{ hostvars['server3'].ansible_host }}</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </testcluster>
+    </remote_servers>
+</clickhouse>
